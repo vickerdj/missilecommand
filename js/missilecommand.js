@@ -330,7 +330,6 @@ $('document').ready(function(){
 		$('#canvas').click(function(){
 			var xEnd = event.clientX - $('#canvas').offset().left + 8;
 	    	var yEnd = event.clientY - $('#canvas').offset().top + 8;
-	    	alert(xEnd + ',' + yEnd + 'offsettop' + $('#canvas').offset().top);
 	    	//Determine nearest base with missiles left
 			var xBasePrev = 0;
 	    	for(i in bases){
