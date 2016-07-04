@@ -47,10 +47,11 @@ $('document').ready(function(){
 		this.bColor = bColor;
 	};
 	var levels = [];
-	levels[0] = new Level(true, 16, 3, "lime");
-	levels[1] = new Level(false, 6, 3, "lime");
-	levels[2] = new Level(false, 8, 4, "red");
-	levels[3] = new Level(false, 16, 4, "red");
+	levels[0] = new Level(true, 4, 3, "lime");
+	levels[1] = new Level(false, 4, 3, "lime");
+	levels[2] = new Level(false, 6, 4, "red");
+	levels[3] = new Level(false, 8, 4, "red");
+	levels[4] = new Level(false, 10, 4, "lime");
 
 	//get a reference to the canvas--------------------------------------------------------------------------------
 	var canvas = document.getElementById('canvas'); 
@@ -81,7 +82,7 @@ $('document').ready(function(){
 		explosions = [];
 		readyToFire = true;	
 		bombsAlive = true;
-		totalMissilesLeft = 0;//Used as counter for number of bases left at end of a level
+		totalMissilesLeft = 0;//Used as counter for number of missiles left at end of a level
 		basesLeft = 0;//Used as counter for number of bases left at end of a level
 		//Recreate each missile base---------------------------------
 		for (var i in bases){
@@ -205,17 +206,21 @@ $('document').ready(function(){
 			var base = bases[i];
 			if(base.baseType === "city" && base.alive === true){
 				drawCity(xStart, 150);
-				xStart += 28;
+				xStart += 30;
 				basesLeft += 1;
 			};
 		};
-		var missPoints = totalMissilesLeft * 5;
-		var basePoints = basesLeft * 100;
-		globals.score += (missPoints + basePoints) * (globals.currLevel + 1);
+		var missPoints = totalMissilesLeft * 5 * (globals.currLevel + 1);
+		var basePoints = basesLeft * 100 * (globals.currLevel + 1);
+		globals.score += (missPoints + basePoints);
 		$('.missPoints').removeClass("hide");
-		$('.missPoints').text(missPoints);
+		if(missPoints > 0){
+			$('.missPoints').text(missPoints);
+		};
 		$('.basePoints').removeClass("hide");
-		$('.basePoints').text(basePoints);
+		if(basePoints > 0){
+			$('.basePoints').text(basePoints);
+		};
 	};
 	//Function to hide bonus points-----------------------------------------------------------
 	var hideBonusPoints = function(){	
@@ -323,8 +328,9 @@ $('document').ready(function(){
 
 	var createMissile = function(){
 		$('#canvas').click(function(){
-			var xEnd = event.clientX - $('#canvas').offset().left - 2;
-	    	var yEnd = event.clientY - $('#canvas').offset().top + 6;
+			var xEnd = event.clientX - $('#canvas').offset().left + 8;
+	    	var yEnd = event.clientY - $('#canvas').offset().top + 8;
+	    	alert(xEnd + ',' + yEnd + 'offsettop' + $('#canvas').offset().top);
 	    	//Determine nearest base with missiles left
 			var xBasePrev = 0;
 	    	for(i in bases){
@@ -444,10 +450,6 @@ $('document').ready(function(){
 	    }; 
 	};
 
-	var endGame = function(){
-		alert("Game over!");
-	};
-
 	//Function to run game--------------------------------------------------------------------------------------------
 	var game = function(currLevelArg){
 		init();
@@ -477,25 +479,27 @@ $('document').ready(function(){
 						//Explosions
 						drawExplosions();
 						updateExplosions();
-						if(globals.gameOver){
-							endGame();
+						if(bombs.length != 0 || explosions.length != 0){
+							gameLoop(currLevelArg);
 						} else {
-							if(bombs.length != 0 || explosions.length != 0){
-								gameLoop(currLevelArg);
-							} else {
-								//Display bonus points scored-------------------------------
-								renderBonusPoints();
+							//Display bonus points scored-------------------------------
+							render();
+							renderBonusPoints();
+							if(!globals.gameOver){
 								globals.currLevel += 1;
 								setTimeout(function(){
 									hideBonusPoints();
 									game(globals.currLevel);
-								},3000);					
-							};
+								},3000);
+							} else {
+								hideBonusPoints();
+								$('.gameOver').removeClass("hide");
+							}
 						};
 					},1000/constants.framesPerSecond);
 				};
 				gameLoop(currLevelArg);
-			},3000);
+			},1500);
 		},3000);
 	};
 	
